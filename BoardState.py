@@ -89,3 +89,17 @@ class BoardState:
                 y += 1
             elif y > yEnd:
                 y -= 1
+    
+    def printBoard(self):
+        for list in self._board:
+            for character in list:
+                print(character, end=" ")
+            print()
+        return
+
+def main():
+    game = BoardState()
+    game.printBoard()
+
+if __name__ == '__main__':
+    main()
