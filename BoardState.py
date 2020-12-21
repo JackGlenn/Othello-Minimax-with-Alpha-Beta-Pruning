@@ -90,6 +90,7 @@ class BoardState:
             elif y > yEnd:
                 y -= 1
     
+    #prints the current board state
     def printBoard(self):
         for list in self._board:
             for character in list:
