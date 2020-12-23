@@ -35,7 +35,7 @@ class BoardState:
                     self._possibleMoves.append((curY, curX))
         self._possibleMoves.remove((y, x))
 
-    #Checks if a tile can be placed in the current position, returns false if it can't be placed, updates board if it can
+    #Checks if a tile can be placed in the current position, returns false if it can't be placed, updates board if it can and returns true
     def positionChecker(self, start, color):
         directionEnds = self.generateEdges(start)
         validEnds = []
@@ -43,8 +43,11 @@ class BoardState:
             end == self.findValidEnd(start, end, color)
             if (end != None):
                 validEnds.append(end)
+        if (len(validEnds) == 0):
+            return False
         for validEnd in validEnds:
             self.flipper(start, validEnd, color)
+        return True
 
 
     #Returns the point along the path from start to end where a disk of color can be placed, if there is no valid it returns None
@@ -134,6 +137,7 @@ class BoardState:
                 print(character, end=" ")
             print()
         return
+
 
 def main():
     game = BoardState()
