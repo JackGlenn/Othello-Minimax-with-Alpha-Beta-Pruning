@@ -22,8 +22,8 @@ class BoardState:
             (5, 2), (5, 3), (5, 4), (5, 5),
         ]
         self._numberOfWhiteDisks = 2
-        print("Insert player color, b for black or w for white")
-        self._playerColor = input()
+        #print("Insert player color, b for black or w for white")
+        #self._playerColor = input()
 
     #Removes (y, x) from _possibleMoves and adds the applicable indices surrounding (y, x) to _possibleMoves
     def updateEdges(self, x, y):
@@ -39,13 +39,15 @@ class BoardState:
     def positionChecker(self, start, color):
         directionEnds = self.generateEdges(start)
         validEnds = []
-        for end in directionEnds:
-            end == self.findValidEnd(start, end, color)
-            if (end != None):
-                validEnds.append(end)
+        for directionEnd in directionEnds:
+            returnedEnd = self.findValidEnd(start, directionEnd, color)
+            if (returnedEnd != None):
+                validEnds.append(returnedEnd)
         if (len(validEnds) == 0):
             return False
+        print("Valid ends")
         for validEnd in validEnds:
+            print(validEnd)
             self.flipper(start, validEnd, color)
         return True
 
@@ -54,16 +56,21 @@ class BoardState:
     def findValidEnd(self, start, end, color):
         if (start == end):
             return
+        print(f"current directional: {end}")
         y = start[0]
         x = start[1]
         yEnd = end[0]
         xEnd = end[1]
         xChange = self.__getChange(x, xEnd)
         yChange = self.__getChange(y, yEnd)
+        print(f"xChange: {xChange}, yChange: {yChange}")
         currentTile = self._board[y][x]
         #Checks if position adjacent to start is invalid(unique as adjacent tile of the same color is invalid)
+        x += xChange
+        y += yChange
         if (currentTile == "-" or currentTile == color):
-            return
+            print("Adjacent was invalid, should return none")
+            return 
         while x != xEnd or y != yEnd:
             x += xChange
             y += yChange
@@ -73,6 +80,7 @@ class BoardState:
                 return
             #returns position of valid end space
             if (currentTile == color):
+                print(f"returning valid end: {(y, x)}")
                 return (y, x)
 
     #returns a list of end points to check based off start
@@ -87,13 +95,13 @@ class BoardState:
         edgeCoords.append((y - num, x + num))
         #adding south east
         num = min(7 - y, 7 - x)
-        edgeCoords.append((y + num, x - num))
+        edgeCoords.append((y + num, x + num))
         #adding north west
         num = min(y, x)
         edgeCoords.append((y - num, x - num))
         #adding south west
         num = min(7 - y, x)
-        edgeCoords.append((7 - y, x))
+        edgeCoords.append((y + num, x - num))
         return edgeCoords
         
 
@@ -136,12 +144,37 @@ class BoardState:
             for character in list:
                 print(character, end=" ")
             print()
-        return
+        print()
 
+    def play(self):
+        isWhitesTurn = True
+        self.printBoard()
+        while True:
+            print(isWhitesTurn)
+            print("input y position")
+            y = input()
+            print("input x position")
+            x = input()
+            position = (int(y), int(x))
+            print("Attempting input at ", end="")
+            print(position)
+            if isWhitesTurn == True:
+                result = self.positionChecker(position, "w")
+            else:
+                result = self.positionChecker(position, 'b')
+            if (result):
+                print(self._numberOfWhiteDisks)
+                self.printBoard()
+                if (isWhitesTurn):
+                    isWhitesTurn = False
+                else:
+                    isWhitesTurn == True
+            else:
+                print("invalid position")
 
 def main():
     game = BoardState()
-    game.printBoard()
+    game.play()
 
 if __name__ == '__main__':
     main()
