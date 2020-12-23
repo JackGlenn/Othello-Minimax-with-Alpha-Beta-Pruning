@@ -24,6 +24,12 @@ class BoardState:
         self._numberOfWhiteDisks = 2
         #print("Insert player color, b for black or w for white")
         #self._playerColor = input()
+        print("Input yes if you want to use the unicode board, no for ascii")
+        uni = input()
+        if uni == "yes":
+            self._usingUnicode = True
+        else:
+            self._usingUnicode = False
 
     #Removes (y, x) from _possibleMoves and adds the applicable indices surrounding (y, x) to _possibleMoves
     def updateEdges(self, x, y):
@@ -142,16 +148,35 @@ class BoardState:
             
     #prints the current board state
     def printBoard(self):
-        print("  0 1 2 3 4 5 6 7")
-        row = 0
-        for list in self._board:
-            print(row, end=" ")
-            for character in list:
-                print(character, end=" ")
+        if (self._usingUnicode):
+            print("  0 1 2 3 4 5 6 7")
+            row = 0
+            for list in self._board:
+                print(row, end=" ")
+                for character in list:
+                    if character == 'w':
+                        print(u"\u25CF", end=" ")
+                        #print(u"\u26AA", end=" ")
+                    elif character == 'b':
+                        print(u"\u25CB", end=" ")
+                        #print(u"\u26AB", end=" ")
+                    else:
+                        print(u"\u25FB", end=" ")
+                        #print(u"\u2610", end=" ")
+                print()
+                row += 1
+            print()            
+        else:   
+            print("  0 1 2 3 4 5 6 7")
+            row = 0
+            for list in self._board:
+                print(row, end=" ")
+                for character in list:
+                    print(character, end=" ")
+                print()
+                row += 1
             print()
-            row += 1
-        print()
-
+    
     #Runs the game
     def play(self):
         isWhitesTurn = True
