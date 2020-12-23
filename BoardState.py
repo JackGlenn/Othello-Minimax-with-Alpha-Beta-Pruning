@@ -22,6 +22,8 @@ class BoardState:
             (5, 2), (5, 3), (5, 4), (5, 5),
         ]
         self._numberOfWhiteDisks = 2
+        print("Insert player color, b for black or w for white")
+        self._playerColor = input()
 
     #Removes (y, x) from _possibleMoves and adds the applicable indices surrounding (y, x) to _possibleMoves
     def updateEdges(self, x, y):
@@ -33,36 +35,65 @@ class BoardState:
                     self._possibleMoves.append((curY, curX))
         self._possibleMoves.remove((y, x))
 
-    #Checks if tiles can be swapped to color on the path from start to end, flips if possible and updates white disks.
-    def positionChecker(self, start, end, color):
+    #Checks if a tile can be placed in the current position, returns false if it can't be placed, updates board if it can
+    def positionChecker(self, start, color):
+        directionEnds = self.generateEdges(start)
+        validEnds = []
+        for end in directionEnds:
+            end == self.findValidEnd(start, end, color)
+            if (end != None):
+                validEnds.append(end)
+        for validEnd in validEnds:
+            self.flipper(start, validEnd, color)
+
+
+    #Returns the point along the path from start to end where a disk of color can be placed, if there is no valid it returns None
+    def findValidEnd(self, start, end, color):
+        if (start == end):
+            return
         y = start[0]
         x = start[1]
         yEnd = end[0]
         xEnd = end[1]
         xChange = self.__getChange(x, xEnd)
         yChange = self.__getChange(y, yEnd)
-        x += xChange
-        y += yChange
         currentTile = self._board[y][x]
+        #Checks if position adjacent to start is invalid(unique as adjacent tile of the same color is invalid)
         if (currentTile == "-" or currentTile == color):
             return
-        count = 2
-        while x < xEnd and y < yEnd:
+        while x != xEnd or y != yEnd:
             x += xChange
             y += yChange
             currentTile = self._board[y][x]
+            #returns none if it hits an empty space (tiles can't be flipped in this direction)
             if (currentTile == "-"):
                 return
+            #returns position of valid end space
             if (currentTile == color):
-                self.flipper(start, (x, y), color)
-                if (color == "w"):
-                    self._numberOfWhiteDisks += count
-                else:
-                    self._numberOfWhiteDisks -= count
-                self.updateEdges(start[1], start[0])
-                return
-            count += 1
-            
+                return (y, x)
+
+    #returns a list of end points to check based off start
+    @staticmethod
+    def generateEdges(start):
+        y = start[0]
+        x = start[1]
+        #adds cardinal directions
+        edgeCoords = [(0, x), (7, x), (y, 0), (y, 7)]
+        #Adding north east
+        num = min(y, 7-x)
+        edgeCoords.append((y - num, x + num))
+        #adding south east
+        num = min(7 - y, 7 - x)
+        edgeCoords.append((y + num, x - num))
+        #adding north west
+        num = min(y, x)
+        edgeCoords.append((y - num, x - num))
+        #adding south west
+        num = min(7 - y, x)
+        edgeCoords.append((7 - y, x))
+        return edgeCoords
+        
+
     #Defines the amount that a path should be indexed by (negative for left and up, positive for right and down)
     @staticmethod
     def __getChange(start, end):
@@ -79,8 +110,10 @@ class BoardState:
         x = start[1]
         yEnd = end[0]
         xEnd = end[1]
+        count = 0
         while x != xEnd and y != yEnd:
             self._board[y][x] = color
+            count += 1
             if x < xEnd:
                 x += 1
             elif x > xEnd:
@@ -89,7 +122,11 @@ class BoardState:
                 y += 1
             elif y > yEnd:
                 y -= 1
-    
+        if (color == "w"):
+            self._numberOfWhiteDisks += count
+        else :
+            self._numberOfWhiteDisks -= count
+            
     #prints the current board state
     def printBoard(self):
         for list in self._board:
