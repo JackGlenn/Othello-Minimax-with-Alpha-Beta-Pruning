@@ -45,9 +45,8 @@ class BoardState:
                 validEnds.append(returnedEnd)
         if (len(validEnds) == 0):
             return False
-        print("Valid ends")
+        print(f"Valid ends: {validEnds}")
         for validEnd in validEnds:
-            print(validEnd)
             self.flipper(start, validEnd, color)
         return True
 
@@ -56,6 +55,7 @@ class BoardState:
     def findValidEnd(self, start, end, color):
         if (start == end):
             return
+        print()
         print(f"current directional: {end}")
         y = start[0]
         x = start[1]
@@ -64,24 +64,29 @@ class BoardState:
         xChange = self.__getChange(x, xEnd)
         yChange = self.__getChange(y, yEnd)
         print(f"xChange: {xChange}, yChange: {yChange}")
-        currentTile = self._board[y][x]
         #Checks if position adjacent to start is invalid(unique as adjacent tile of the same color is invalid)
         x += xChange
         y += yChange
+        currentTile = self._board[y][x]
         if (currentTile == "-" or currentTile == color):
-            print("Adjacent was invalid, should return none")
+            print(F"Adjacent was invalid {(y, x)}")
             return 
-        while x != xEnd or y != yEnd:
+        while True:
             x += xChange
             y += yChange
             currentTile = self._board[y][x]
             #returns none if it hits an empty space (tiles can't be flipped in this direction)
             if (currentTile == "-"):
+                print(f"Hit an empty space at {(y, x)}")
                 return
             #returns position of valid end space
             if (currentTile == color):
                 print(f"returning valid end: {(y, x)}")
                 return (y, x)
+            #Hit the ends and couldn't find a valid end
+            if (x == xEnd and y == yEnd):
+                print("Hit end")
+                return
 
     #returns a list of end points to check based off start
     @staticmethod
@@ -117,40 +122,45 @@ class BoardState:
 
     #Makes all entries between start and end be the input color   
     def flipper(self, start, end, color):
+        print(f"Flipper called. start: {start} end: {end} color: {color}")
         y = start[0]
         x = start[1]
         yEnd = end[0]
         xEnd = end[1]
+        xChange = self.__getChange(x, xEnd)
+        yChange = self.__getChange(y, yEnd)
         count = 0
-        while x != xEnd and y != yEnd:
+        while x != xEnd or y != yEnd:
             self._board[y][x] = color
+            y += yChange
+            x += xChange
             count += 1
-            if x < xEnd:
-                x += 1
-            elif x > xEnd:
-                x -= 1
-            if y < yEnd:
-                y += 1
-            elif y > yEnd:
-                y -= 1
         if (color == "w"):
             self._numberOfWhiteDisks += count
-        else :
-            self._numberOfWhiteDisks -= count
+        else:
+            self._numberOfWhiteDisks -= count - 1
             
     #prints the current board state
     def printBoard(self):
+        print("  0 1 2 3 4 5 6 7")
+        row = 0
         for list in self._board:
+            print(row, end=" ")
             for character in list:
                 print(character, end=" ")
             print()
+            row += 1
         print()
 
+    #Runs the game
     def play(self):
         isWhitesTurn = True
         self.printBoard()
         while True:
-            print(isWhitesTurn)
+            if (isWhitesTurn):
+                print("White's turn")
+            else:
+                print("Black's turn")
             print("input y position")
             y = input()
             print("input x position")
@@ -163,14 +173,16 @@ class BoardState:
             else:
                 result = self.positionChecker(position, 'b')
             if (result):
-                print(self._numberOfWhiteDisks)
+                print()
+                print(f"Number of white disks: {self._numberOfWhiteDisks}")
                 self.printBoard()
                 if (isWhitesTurn):
                     isWhitesTurn = False
                 else:
-                    isWhitesTurn == True
+                    isWhitesTurn = True
             else:
                 print("invalid position")
+                self.printBoard()
 
 def main():
     game = BoardState()
